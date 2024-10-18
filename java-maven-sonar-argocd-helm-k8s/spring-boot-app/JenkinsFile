@@ -45,24 +45,35 @@ pipeline {
         }
       }
     }
-    stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-            GIT_USER_NAME = "lokeshdev973"
-        }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    git config user.email "elisettylokeshdev@gmail.com"
-                    git config user.name "lokeshdev973"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
-            }
+stage('Update Deployment File') {
+    environment {
+        GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+        GIT_USER_NAME = "lokeshdev973"
+    }
+    steps {
+        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+            sh '''
+                # Configure git
+                git config user.email "elisettylokeshdev@gmail.com"
+                git config user.name "lokeshdev973"
+                
+                # Checkout the main branch to avoid detached HEAD state
+                git clone https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
+                cd ${GIT_REPO_NAME}
+                git checkout main
+                
+                # Update deployment file
+                BUILD_NUMBER=${BUILD_NUMBER}
+                sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                
+                # Commit and push changes
+                git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} main
+            '''
         }
     }
+}
+
 }
 }
