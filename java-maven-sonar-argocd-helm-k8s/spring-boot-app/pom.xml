@@ -40,7 +40,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- debugging -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -67,8 +66,24 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
         </plugins>
+
+        <repositories>
+            <repository>
+                <id>nexus</id> <url>your-nexus-url/repository/maven-public/</url> <releases>
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+
+        <distributionManagement>
+            <repository>
+                <id>nexus</id> <url>your-nexus-url/repository/maven-releases/</url> </repository>
+        </distributionManagement>
+
     </build>
 
 
